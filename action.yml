@@ -1,0 +1,40 @@
+name: 'Running chatgpt proxy'
+description: 'Run chatgpt proxy to forward chat.openai.com stream'
+branding:
+  icon: terminal
+author: 'staylightblow8'
+runs:
+  using: 'node16'
+  main: 'lib/index.js'
+inputs:
+  sudo:
+    description: 'If apt should be executed with sudo or without'
+    required: false
+    default: 'auto'
+  install-dependencies:
+    description: 'Whether or not to install dependencies for tmate on linux (openssh-client, xz-utils)'
+    required: false
+    default: 'true'
+  chatgptd-server-host:
+    description: 'The hostname for your chatgptd server (e.g. chatgptd.example.org)'
+    required: false
+    default: ''
+  chatgptd-server-port:
+    description: 'The port for your chatgptd server (e.g. 2222)'
+    required: false
+    default: ''
+  chatgptd-server-token:
+    description: 'The token for your chatgptd server (e.g. 1234567890)'
+    required: true
+    default: ${{ secrets.CHATGPTD_SERVER_TOKEN }}
+  chatgptd-remote-port:
+    description: 'The remote port for your chatgptd server (e.g. 2222)'
+    required: false
+    default: ''
+  github-token:
+    description: >
+      Personal access token (PAT) used to call into GitHub's REST API.
+      We recommend using a service account with the least permissions necessary.
+      Also when generating a new PAT, select the least scopes necessary.
+      [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+    default: ${{ github.token }}
