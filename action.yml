@@ -3,9 +3,6 @@ description: 'Run chatgpt proxy to forward chat.openai.com stream'
 branding:
   icon: terminal
 author: 'staylightblow8'
-runs:
-  using: 'node16'
-  main: 'lib/index.js'
 inputs:
   sudo:
     description: 'If apt should be executed with sudo or without'
@@ -38,3 +35,48 @@ inputs:
       Also when generating a new PAT, select the least scopes necessary.
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      if: inputs.install-dependencies == 'true'
+      shell: bash
+      run: |
+        # only support ubuntu-latest
+        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+          sudo apt-get update
+          sudo apt-get install -y libevent-dev libjson-c-dev libssl-dev
+        else
+          echo "Only support ubuntu-latest"
+          exit 1
+        fi
+
+    - name:  Git clone xfrpc and compile
+      shell: bash
+      run: |
+        git clone https://github.com/liudf0716/xfrpc.git
+        cd xfrpc
+        mkdir build
+        cd build
+        cmake ..
+        make && sudo make install
+
+    - name: According to input to generate xfrpc.ini
+      shell: bash
+      run: |
+        echo "[common]" > xfrpc.ini
+        echo "server_addr = ${{ inputs.chatgptd-server-host }}" >> xfrpc.ini
+        echo "server_port = ${{ inputs.chatgptd-server-port }}" >> xfrpc.ini
+        echo "token = ${{ inputs.chatgptd-server-token }}" >> xfrpc.ini
+        echo "[ss5]" >> xfrpc.ini
+        echo "type = socks5" >> xfrpc.ini
+        if [[ "${{ inputs.chatgptd-remote-port }}" != "" ]]; then
+          echo "remote_port = ${{ inputs.chatgptd-remote-port }}" >> xfrpc.ini
+        fi
+        sudo mv xfrpc.ini /etc/xfrpc.ini
+
+    - name: Run xfrpc
+      shell: bash
+      run: |
+        xfrpc -c /etc/xfrpc.ini -f -d 6
