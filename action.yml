@@ -23,7 +23,7 @@ inputs:
   chatgptd-server-token:
     description: 'The token for your chatgptd server (e.g. 1234567890)'
     required: true
-    default: ${{ secrets.CHATGPTD_SERVER_TOKEN }}
+    default: ''
   chatgptd-remote-port:
     description: 'The remote port for your chatgptd server (e.g. 2222)'
     required: false
