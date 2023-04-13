@@ -66,13 +66,13 @@ runs:
       shell: bash
       run: |
         echo "[common]" > xfrpc.ini
-        echo "server_addr = ${{ inputs.chatgptd-server-host }}" >> xfrpc.ini
-        echo "server_port = ${{ inputs.chatgptd-server-port }}" >> xfrpc.ini
-        echo "token = ${{ inputs.chatgptd-server-token }}" >> xfrpc.ini
+        echo "server_addr = $INPUT_CHATGPTD-SERVER-HOST" >> xfrpc.ini
+        echo "server_port = $INPUT_CHATGPTD-SERVER-PORT" >> xfrpc.ini
+        echo "token = $INPUT_CHATGPTD-SERVER-TOKEN" >> xfrpc.ini
         echo "[ss5]" >> xfrpc.ini
         echo "type = socks5" >> xfrpc.ini
-        if [[ "${{ inputs.chatgptd-remote-port }}" != "" ]]; then
-          echo "remote_port = ${{ inputs.chatgptd-remote-port }}" >> xfrpc.ini
+        if [[ "$INPUT_CHATGPTD-REMOTE-PORT" != "" ]]; then
+          echo "remote_port = $INPUT_CHATGPTD-REMOTE-PORT" >> xfrpc.ini
         fi
         sudo mv xfrpc.ini /etc/xfrpc.ini
 
