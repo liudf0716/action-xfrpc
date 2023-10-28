@@ -31,7 +31,7 @@ inputs:
   instaloader:
     description: 'Is start instaloader local service'
     required: false
-    default: ''
+    default: 'true'
   instaloader-remote-port:
     description: 'The remote port for your instaloader server (e.g. 10001)'
     required: false
@@ -82,15 +82,29 @@ runs:
         if [[ "${{ inputs.chatgptd-remote-port }}" != "" ]]; then
           echo "remote_port = ${{ inputs.chatgptd-remote-port }}" >> xfrpc.ini
         fi
-        if [[ "${{ inputs.instaloader }}" != "" ]]; then
-          echo "[instaloader]" >> xfrpc.ini
-          echo "type = tcp" >> xfrpc.ini
-          echo "plugin = instaloader" >> xfrpc.ini
-          if [[ "${{ inputs.instaloader-remote-port }}" != "" ]]; then
-            echo "remote_port = ${{ inputs.instaloader-remote-port }}" >> xfrpc.ini
-          fi
+
+    - name: Add instaloader plugin configure
+      if: inputs.instaloader == 'true'
+      shell: bash
+      run: |
+        echo "[instaloader]" >> xfrpc.ini
+        echo "type = tcp" >> xfrpc.ini
+        echo "plugin = instaloader" >> xfrpc.ini
+        if [[ "${{ inputs.instaloader-remote-port }}" == 'true' ]]; then
+          echo "remote_port = ${{ inputs.instaloader-remote-port }}" >> xfrpc.ini
         fi
-        sudo mv xfrpc.ini /etc/xfrpc.ini
+        
+    - name: Move xfrpc.ini
+      shell: bash
+      run: |
+        # if current directory exist xfrpc.ini, move it to /etc/xfrpc.ini
+        # otherwise, output warning xfrpc.ini not exist
+        if [[ -f xfrpc.ini ]]; then
+          sudo mv xfrpc.ini /etc/xfrpc.ini
+        else
+          echo "xfrpc.ini not exist"
+          exit 1
+        fi
 
     - name: Run xfrpc
       shell: bash
