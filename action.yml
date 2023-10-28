@@ -55,6 +55,7 @@ runs:
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
           sudo apt-get update
           sudo apt-get install -y libevent-dev libjson-c-dev libssl-dev  python3-pip
+          sudo apt-get install -y instaloader
         else
           echo "Only support ubuntu-latest"
           exit 1
