@@ -90,7 +90,7 @@ runs:
         echo "[instaloader]" >> xfrpc.ini
         echo "type = tcp" >> xfrpc.ini
         echo "plugin = instaloader" >> xfrpc.ini
-        if [[ "${{ inputs.instaloader-remote-port }}" == 'true' ]]; then
+        if [[ "${{ inputs.instaloader-remote-port }}" != "" ]]; then
           echo "remote_port = ${{ inputs.instaloader-remote-port }}" >> xfrpc.ini
         fi
         
