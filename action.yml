@@ -13,21 +13,29 @@ inputs:
     required: false
     default: 'true'
   chatgptd-server-host:
-    description: 'The hostname for your chatgptd server (e.g. chatgptd.example.org)'
+    description: 'The hostname for your xfrpc server (e.g. xfrpc.org)'
     required: false
     default: ''
   chatgptd-server-port:
-    description: 'The port for your chatgptd server (e.g. 2222)'
+    description: 'The port for your xfrpc server (e.g. 2222)'
     required: false
     default: ''
   chatgptd-server-token:
-    description: 'The token for your chatgptd server (e.g. 1234567890)'
+    description: 'The token for your xfrpc server (e.g. 1234567890)'
     required: true
     default: ''
   chatgptd-remote-port:
-    description: 'The remote port for your chatgptd server (e.g. 2222)'
+    description: 'The remote port for your xfrpc server (e.g. 2222)'
     required: false
     default: ''
+  instaloader:
+    description: 'Is start instaloader local service'
+    required: false
+    default: ''
+  instaloader-remote-port:
+    description: 'The remote port for your instaloader server (e.g. 10001)'
+    required: false
+    default: '10001'
   github-token:
     description: >
       Personal access token (PAT) used to call into GitHub's REST API.
@@ -46,7 +54,7 @@ runs:
         # only support ubuntu-latest
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
           sudo apt-get update
-          sudo apt-get install -y libevent-dev libjson-c-dev libssl-dev
+          sudo apt-get install -y libevent-dev libjson-c-dev libssl-dev  python3-pip
         else
           echo "Only support ubuntu-latest"
           exit 1
@@ -74,9 +82,17 @@ runs:
         if [[ "${{ inputs.chatgptd-remote-port }}" != "" ]]; then
           echo "remote_port = ${{ inputs.chatgptd-remote-port }}" >> xfrpc.ini
         fi
+        if [[ "${{ inputs.instaloader }}" != "" ]]; then
+          echo "[instaloader]" >> xfrpc.ini
+          echo "type = tcp" >> xfrpc.ini
+          echo "plugin = instaloader" >> xfrpc.ini
+          if [[ "${{ inputs.instaloader-remote-port }}" != "" ]]; then
+            echo "remote_port = ${{ inputs.instaloader-remote-port }}" >> xfrpc.ini
+          fi
+        fi
         sudo mv xfrpc.ini /etc/xfrpc.ini
 
     - name: Run xfrpc
       shell: bash
       run: |
-        xfrpc -c /etc/xfrpc.ini -f -d 6
+        xfrpc -c /etc/xfrpc.ini -f -d 7
